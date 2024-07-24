@@ -7,7 +7,7 @@ const FormData = require('form-data');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const apiKey = '1ff40cf9e6f8b41e59ed57237b8c611c7';
+const apiKey = '1234567890'; // Replace with your actual API key
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
