@@ -15,42 +15,33 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    console.log('Uploading file:', file.originalname);
     cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
   }
 });
 const upload = multer({ storage: storage });
 
 // Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 // Handle photo uploads
-app.post('/api/upload', upload.array('photos', 2), async (req, res) => {
+app.post('/upload', upload.array('photos', 2), async (req, res) => {
   try {
     const files = req.files;
     console.log('Files received:', files);
-    res.send('Photos uploaded. Please process them manually in RunwayML and upload the result.');
+    // Simulate processing by renaming files
+    const processedFiles = files.map(file => {
+      const newPath = path.join(file.destination, 'processed-' + file.filename);
+      fs.renameSync(file.path, newPath);
+      return newPath;
+    });
+
+    res.send(`Files processed successfully: ${processedFiles.join(', ')}`);
   } catch (error) {
     console.error('Error processing files:', error);
     res.status(500).send('Error processing files');
   }
 });
 
-// Handle processed video upload
-app.post('/api/uploadVideo', upload.single('video'), (req, res) => {
-  try {
-    const file = req.file;
-    console.log('Processed video uploaded:', file);
-    res.send('Video uploaded successfully');
-  } catch (error) {
-    console.error('Error uploading video:', error);
-    res.status(500).send('Error uploading video');
-  }
-});
-
-// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-
-module.exports = app; // This line is crucial for Vercel deployment
