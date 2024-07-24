@@ -7,6 +7,8 @@ const FormData = require('form-data');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const apiKey = '1ff40cf9e6f8b41e59ed57237b8c611c7';
+
 // Set up multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -25,32 +27,28 @@ const upload = multer({ storage: storage });
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
-// Handle photo uploads
+// Handle photo uploads and API call
 app.post('/upload', upload.array('photos', 2), async (req, res) => {
   try {
     const files = req.files;
     console.log('Files received:', files);
 
-    // Prepare the form data to send to the AI API
     const formData = new FormData();
-    formData.append('image1', fs.createReadStream(files[0].path));
-    formData.append('image2', fs.createReadStream(files[1].path));
+    formData.append('file1', fs.createReadStream(files[0].path));
+    formData.append('file2', fs.createReadStream(files[1].path));
 
-    // Send request to AI API
-    const response = await axios.post('https://api.runwayml.com/v1/your-endpoint', formData, {
+    const response = await axios.post('https://api.aivideoapi.com/runway/generate/imageDescription', formData, {
       headers: {
         ...formData.getHeaders(),
-        'Authorization': 'Bearer API_KEY'
+        'Authorization': `Bearer ${apiKey}`
       }
     });
 
-    const resultUrl = response.data.result_url; // Assuming the API returns a URL to the processed image
+    // Assuming the API response contains a URL to the generated video
+    const videoUrl = response.data.url;
 
-    // Clean up uploaded files
-    fs.unlinkSync(files[0].path);
-    fs.unlinkSync(files[1].path);
-
-    res.json({ resultUrl });
+    // Send the URL of the generated video back to the client
+    res.send(`<video controls src="${videoUrl}"></video>`);
   } catch (error) {
     console.error('Error processing files:', error);
     res.status(500).send('Error processing files');
