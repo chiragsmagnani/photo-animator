@@ -1,22 +1,20 @@
 document.getElementById('uploadForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  document.getElementById('processing').style.display = 'block';
-  document.getElementById('uploadForm').style.display = 'none';
-});
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = 'Uploading and processing...';
 
-document.getElementById('resultForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
   const formData = new FormData();
-  formData.append('video', document.getElementById('videoInput').files[0]);
+  formData.append('photos', document.getElementById('fileInput1').files[0]);
+  formData.append('photos', document.getElementById('fileInput2').files[0]);
 
   try {
-    const response = await fetch('/uploadVideo', {
+    const response = await fetch('/upload', {
       method: 'POST',
       body: formData
     });
     const result = await response.text();
-    document.getElementById('result').innerText = 'Video uploaded and processed: ' + result;
+    resultDiv.innerHTML = result;
   } catch (error) {
-    document.getElementById('result').innerText = 'Error uploading video';
+    resultDiv.innerHTML = 'Error uploading files';
   }
 });
