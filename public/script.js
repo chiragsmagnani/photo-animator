@@ -12,8 +12,8 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
       method: 'POST',
       body: formData
     });
-    const result = await response.json();
-    resultDiv.innerHTML = `<img src="${result.resultUrl}" alt="Processed Image">`;
+    const result = await response.text();
+    resultDiv.innerHTML = result;
   } catch (error) {
     resultDiv.innerHTML = 'Error uploading files';
   }
